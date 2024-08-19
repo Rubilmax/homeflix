@@ -1,4 +1,4 @@
-# HTPC Download Box
+# Homeflix
 
 Sonarr / Radarr / Jackett / NZBGet / Deluge / OpenVPN / Plex
 
@@ -7,7 +7,7 @@ All automated.
 
 ## Table of Contents
 
-- [HTPC Download Box](#htpc-download-box)
+- [Homeflix](#homeflix)
   - [Table of Contents](#table-of-contents)
   - [Overview](#overview)
     - [Monitor TV shows/movies with Sonarr and Radarr](#monitor-tv-showsmovies-with-sonarr-and-radarr)
@@ -155,7 +155,7 @@ You can also use a Raspberry Pi, a Synology NAS, a Windows or Mac computer. The 
 The idea is to set up all these components as Docker containers in a `docker-compose.yml` file.
 We'll reuse community-maintained images (special thanks to [linuxserver.io](https://www.linuxserver.io/) for many of them).
 I'm assuming you have some basic knowledge of Linux and Docker.
-A general-purpose `docker-compose` file is maintained in this repo [here](https://github.com/sebgl/htpc-download-box/blob/master/docker-compose.yml).
+A general-purpose `docker-compose` file is maintained in this repo [here](https://github.com/rubilmax/homeflix/blob/master/docker-compose.yml).
 
 The stack is not really plug-and-play. You'll see that manual human configuration is required for most of these tools. Configuration is not fully automated (yet?), but is persisted on reboot. Some steps also depend on external accounts that you need to set up yourself (usenet indexers, torrent indexers, vpn server, plex account, etc.). We'll walk through it.
 
@@ -180,7 +180,7 @@ Also install docker-compose (see the [official instructions](https://docs.docker
 
 This tutorial will guide you along the full process of making your own docker-compose file and configuring every app within it, however, to prevent errors or to reduce your typing, you can also use the general-purpose docker-compose file provided in this repository.
 
-1. First, `git clone https://github.com/sebgl/htpc-download-box` into a directory. This is where you will run the full setup from (note: this isn't the same as your media directory)
+1. First, `git clone https://github.com/rubilmax/homeflix` into a directory. This is where you will run the full setup from (note: this isn't the same as your media directory)
 2. Rename the `.env.example` file included in the repo to `.env`.
 3. Continue this guide, and the docker-compose file snippets you see are already ready for you to use. You'll still need to manually configure your `.env` file and other manual configurations.
 
