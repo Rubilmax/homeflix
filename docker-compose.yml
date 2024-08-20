@@ -1,3 +1,4 @@
+version: "3.4"
 services:
   vpn:
     container_name: vpn
@@ -7,7 +8,7 @@ services:
     restart: unless-stopped
     volumes:
       - /dev/net:/dev/net:z # tun device
-      - ${ROOT}/config/vpn:/vpn # OpenVPN configuration
+      - ./config/vpn:/vpn # OpenVPN configuration
     security_opt:
       - label:disable
     ports:
@@ -24,22 +25,8 @@ services:
       - PGID=${PGID} # default group id, defined in .env
       - TZ=${TZ} # timezone, defined in .env
     volumes:
-      - ${ROOT}/downloads:/downloads # downloads folder
-      - ${ROOT}/config/deluge:/config # config files
-
-  jackett:
-    container_name: jackett
-    image: linuxserver/jackett:latest
-    restart: unless-stopped
-    network_mode: host
-    environment:
-      - PUID=${PUID} # default user id, defined in .env
-      - PGID=${PGID} # default group id, defined in .env
-      - TZ=${TZ} # timezone, defined in .env
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - ${ROOT}/downloads/torrent-blackhole:/downloads # place where to put .torrent files for manual download
-      - ${ROOT}/config/jackett:/config # config files
+      - ${ROOT}/homeflix/downloads:/downloads # downloads folder
+      - ./config/deluge:/config # config files
 
   nzbget:
     container_name: nzbget
@@ -51,12 +38,12 @@ services:
       - PGID=${PGID} # default group id, defined in .env
       - TZ=${TZ} # timezone, defined in .env
     volumes:
-      - ${ROOT}/downloads:/downloads # download folder
-      - ${ROOT}/config/nzbget:/config # config files
+      - ${ROOT}/homeflix/downloads:/downloads # download folder
+      - ./config/nzbget:/config # config files
 
-  sonarr:
-    container_name: sonarr
-    image: linuxserver/sonarr:latest
+  prowlarr:
+    container_name: prowlarr
+    image: linuxserver/prowlarr
     restart: unless-stopped
     network_mode: host
     environment:
@@ -65,9 +52,7 @@ services:
       - TZ=${TZ} # timezone, defined in .env
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${ROOT}/config/sonarr:/config # config files
-      - ${ROOT}/complete/tv:/tv # tv shows folder
-      - ${ROOT}/downloads:/downloads # download folder
+      - ./config/prowlarr:/config
 
   radarr:
     container_name: radarr
@@ -80,33 +65,18 @@ services:
       - TZ=${TZ} # timezone, defined in .env
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${ROOT}/config/radarr:/config # config files
-      - ${ROOT}/complete/movies:/movies # movies folder
-      - ${ROOT}/downloads:/downloads # download folder
+      - ./config/radarr:/config # config files
+      - ${ROOT}/data/movies:/movies # movies folder
+      - ${ROOT}/homeflix/downloads:/downloads # download folder
 
-  plex-server:
-    container_name: plex-server
+  plex:
+    container_name: plex
     image: plexinc/pms-docker:latest
     restart: unless-stopped
     environment:
       - TZ=${TZ} # timezone, defined in .env
     network_mode: host
     volumes:
-      - ${ROOT}/config/plex/db:/config # plex database
-      - ${ROOT}/config/plex/transcode:/transcode # temp transcoded files
-      - ${ROOT}/complete:/data # media library
-
-  bazarr:
-    container_name: bazarr
-    image: linuxserver/bazarr
-    restart: unless-stopped
-    network_mode: host
-    environment:
-      - PUID=${PUID} # default user id, defined in .env
-      - PGID=${PGID} # default group id, defined in .env
-      - TZ=${TZ} # timezone, defined in .env
-      - UMASK_SET=022 #optional
-    volumes:
-      - ${ROOT}/config/bazarr:/config # config files
-      - ${ROOT}/complete/movies:/movies # movies folder
-      - ${ROOT}/complete/tv:/tv # tv shows folder
+      - ./config/plex/db:/config # plex database
+      - ./config/plex/transcode:/transcode # temp transcoded files
+      - ${ROOT}/data:/data # media library
