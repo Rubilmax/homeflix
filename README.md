@@ -48,8 +48,7 @@ All automated.
     - [Setup Bazarr](#setup-bazarr)
       - [Bazarr Docker container](#bazarr-docker-container)
       - [Bazarr Configuration](#bazarr-configuration)
-  - [Manage it all from your mobile](#manage-it-all-from-your-mobile)
-  - [Going Further](#going-further)
+  - [Cronjobs](#cronjobs)
 
 ## Overview
 
@@ -773,24 +772,12 @@ The next step is connecting to Radarr and the process should be identical. The o
 
 If you have any problems, check out the [wiki page](https://github.com/morpheus65535/bazarr/wiki/First-time-installation-configuration) for Bazarr and you should probably find your answer.
 
-## Manage it all from your mobile
+## Cronjobs
 
-On Android, I'm using [nzb360](http://nzb360.com) to manage NZBGet, Deluge, Sonarr and Radarr.
-It's a beautiful and well-thinked app. Easy to get a look at upcoming tv shows releases (eg. "when will the next f\*\*cking Game of Thrones episode be released?").
+### Auto shutdown
 
-![NZB360](img/nzb360.png)
+Create a logfile: `sudo touch /var/log/shutdown.log`
 
-The free version does not allow you to add new shows. Consider switching to the paid version (6\$) and support the developer.
-
-## Going Further
-
-Some stuff worth looking at that I do not use at the moment:
-
-- [NZBHydra](https://github.com/theotherp/nzbhydra): meta search for NZB indexers (like [Jackett](https://github.com/Jackett/Jackett) does for torrents). Could simplify and centralise nzb indexers configuration at a single place.
-- [Organizr](https://github.com/causefx/Organizr): Embed all these services in a single webpage with tab-based navigation
-- [Plex sharing features](https://www.plex.tv/features/#feat-modal)
-- [Headphones](https://github.com/rembo10/headphones): Automated music download. Like Sonarr but for music albums. I've been using it for a while, but it did not give me satisfying results. I also tend to rely entirely on a Spotify premium account to manage my music collection now.
-- [Mylar](https://github.com/evilhero/mylar): like Sonarr, but for comic books.
-- [Ombi](http://www.ombi.io/): Web UI to give your shared Plex instance users the ability to request new content
-- [PlexPy](https://github.com/JonnyWong16/plexpy): Monitoring interface for Plex. Useful is you share your Plex server to multiple users.
-- Radarr lists automated downloads, to fetch best movies automatically. [Rotten Tomatoes certified movies](https://www.rottentomatoes.com/browse/cf-in-theaters/) would be a nice list to parse and get automatically.
+```bash
+0 * * * * /home/rubilmax/homeflix/auto_shutdown.sh >> /var/log/shutdown.log
+```

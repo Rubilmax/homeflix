@@ -1,4 +1,3 @@
-version: "3.4"
 services:
   vpn:
     container_name: vpn
@@ -12,12 +11,28 @@ services:
     security_opt:
       - label:disable
     ports:
+      - 8090:8090 # port for qbittorrent web UI to be reachable from local network
       - 8112:8112 # port for deluge web UI to be reachable from local network
+      - 6789:6789 # port for nzbget web UI to be reachable from local network
     command: '-f "" -r 192.168.1.0/24' # enable firewall and route local network traffic
 
-  deluge:
-    container_name: deluge
-    image: linuxserver/deluge:latest
+  qbittorrent:
+    container_name: qbittorrent
+    image: linuxserver/qbittorrent:latest
+    restart: unless-stopped
+    network_mode: service:vpn # run on the vpn network
+    environment:
+      - PUID=${PUID} # default user id, defined in .env
+      - PGID=${PGID} # default group id, defined in .env
+      - TZ=${TZ} # timezone, defined in .env
+      - WEBUI_PORT=8090
+    volumes:
+      - ${ROOT}/homeflix:/downloads # downloads folder
+      - ./config/qbittorrent:/config # config files
+
+  nzbget:
+    container_name: nzbget
+    image: linuxserver/nzbget:latest
     restart: unless-stopped
     network_mode: service:vpn # run on the vpn network
     environment:
@@ -25,20 +40,7 @@ services:
       - PGID=${PGID} # default group id, defined in .env
       - TZ=${TZ} # timezone, defined in .env
     volumes:
-      - ${ROOT}/homeflix/downloads:/downloads # downloads folder
-      - ./config/deluge:/config # config files
-
-  nzbget:
-    container_name: nzbget
-    image: linuxserver/nzbget:latest
-    restart: unless-stopped
-    network_mode: host
-    environment:
-      - PUID=${PUID} # default user id, defined in .env
-      - PGID=${PGID} # default group id, defined in .env
-      - TZ=${TZ} # timezone, defined in .env
-    volumes:
-      - ${ROOT}/homeflix/downloads:/downloads # download folder
+      - ${ROOT}/homeflix:/downloads # download folder
       - ./config/nzbget:/config # config files
 
   radarr:
@@ -54,7 +56,36 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - ./config/radarr:/config # config files
       - ${ROOT}/data/movies:/movies # movies folder
-      - ${ROOT}/homeflix/downloads:/downloads # download folder
+      - ${ROOT}/homeflix:/downloads # download folder
+
+  sonarr:
+    container_name: sonarr
+    image: linuxserver/sonarr:latest
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - PUID=${PUID} # default user id, defined in .env
+      - PGID=${PGID} # default group id, defined in .env
+      - TZ=${TZ} # timezone, defined in .env
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./config/sonarr:/config # config files
+      - ${ROOT}/data/shows:/shows # tv shows folder
+      - ${ROOT}/homeflix:/downloads # download folder
+
+  bazarr:
+    container_name: bazarr
+    image: linuxserver/bazarr
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - PUID=${PUID} # default user id, defined in .env
+      - PGID=${PGID} # default group id, defined in .env
+      - TZ=${TZ} # timezone, defined in .env
+    volumes:
+      - ./config/bazarr:/config # config files
+      - ${ROOT}/data/movies:/movies # movies folder
+      - ${ROOT}/data/shows:/shows # tv shows folder
 
   prowlarr:
     container_name: prowlarr
@@ -69,6 +100,20 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - ./config/prowlarr:/config
 
+  overseerr:
+    container_name: overseerr
+    image: linuxserver/overseerr:latest
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - PUID=${PUID} # default user id, defined in .env
+      - PGID=${PGID} # default group id, defined in .env
+      - TZ=${TZ} # time zone, defined in .env
+    volumes:
+      - ./config/overseerr:/config
+      - ${ROOT}/data/movies:/movies # movies folder
+      - ${ROOT}/data/shows:/shows # tv shows folder
+
   plex:
     container_name: plex
     image: plexinc/pms-docker:latest
@@ -80,6 +125,7 @@ services:
       - ./config/plex/db:/config # plex database
       - ./config/plex/transcode:/transcode # temp transcoded files
       - ${ROOT}/data:/data # media library
+    cpu_shares: 8192
 
   organizr:
     container_name: organizr
