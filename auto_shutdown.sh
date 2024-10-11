@@ -3,5 +3,9 @@
 session_count=$(curl -sS http://localhost:32400/status/sessions?X-Plex-Token= | grep -oP '(?<=<MediaContainer size=")[0-9]+' | head -1)
 
 if [ "$session_count" -eq 0 ]; then
-    shutdown -h now
+    if [ ! -e "/run/systemd/shutdown/scheduled" ]; then
+        shutdown -P +300
+    fi
+else
+    shutdown -c
 fi
