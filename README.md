@@ -717,67 +717,26 @@ This can be set up in `Settings/Lists`. I activated the following lists:
 
 I disabled automatic sync for these lists: I want them to show when I add a new movie, but I don't want every item of these lists to be automatically synced with my movie library.
 
-### Setup Bazarr
+## Drives
 
-In previous versions of this guide, I used the sub-zero plugin for plex. Based on someone's suggestion on this project I tried out [Bazarr](https://www.bazarr.media/) which hooks directly into Radarr and Sonarr and makes the process more effective and painless. If you don't care about subtitles go ahead and skip this step.
-
-#### Bazarr Docker container
-
-Believe it or not, we will be using yet another docker container from linuxserver! Since this is made to be a companion app for Sonarr and Radarr, you will notice that the configuration is very similar to them, just point it at the directories where you store your organized movies and tv shows.
-
-```yaml
-bazarr:
-  container_name: bazarr
-  image: linuxserver/bazarr
-  restart: unless-stopped
-  network_mode: host
-  environment:
-    - PUID=${PUID} # default user id, defined in .env
-    - PGID=${PGID} # default group id, defined in .env
-    - TZ=${TV} # timezone, defined in .env
-    - UMASK_SET=022 #optional
-  volumes:
-    - ${ROOT}/config/bazarr:/config # config files
-    - ${ROOT}/complete/movies:/movies # movies folder
-    - ${ROOT}/complete/tv:/tv # tv shows folder
-  ports:
-    - 6767:6767
+```txt
+/dev/disk/by-uuid/6CFE-C362 /media exfat rw,relatime,uid=1000,gid=1000,dmask=0007,fmask=0117,iocharset=utf8,errors=remount-ro,nosuid,nodev,nofail,x-gvfs-show 0 0
 ```
-
-#### Bazarr Configuration
-
-The Web UI for Bazarr will be available on port 6767. Load it up and you will be greeted with this setup page:
-
-![Bazarr configuration](img/bazarr_start.png)
-
-You can leave this page blank and go straight to the next page, "Subtitles". There are many options for different subtitle providers to use, but in this guide I'll be using [Open Subtitles](https://www.opensubtitles.org/). If you don't have an account with them, head on over to the [Registration page](https://www.opensubtitles.org/en/newuser) and make a new account. Then all you need to do is tick the box for OpenSubtitles and fill in your new account details.
-
-![Bazarr Open Subtitles](img/bazarr_opensubtitles.png)
-
-You can always add more subtitle providers if you want, figure out which ones are good for you!
-
-Next scroll to the bottom of the screen where you will find your language settings. I am interested in French as well as English subtitles so I will add both of them for enabled languages. However I am primarily interested in French so I will turn on "Default Enabled" for both TV and movies and finally set French to be that default.
-
-![Bazarr Languages](img/bazarr_language.png)
-
-Click next and we will be on the Sonarr setup page. For this part we will need our Sonarr API key. To get this, open up sonarr in a separate tab and navigate to `Settings > General > Security` and copy the api key listed there.
-
-![Sonarr API Key](img/bazarr_sonarr_api.png)
-
-Head back over Bazarr and check the "Use Sonarr" box and some settings will pop up. Paste your API key in the proper field, and you can leave the other options default. If you would like, you can tick the box for "Download Only Monitored" which will prevent Bazarr from downloading subtitles for tv shows you have in your Sonarr library but have possibly deleted from your drive. Then click "Test" and Sonarr should be all set!
-
-![Bazarr Sonarr Setup](img/bazarr_sonarr.png)
-
-The next step is connecting to Radarr and the process should be identical. The only difference is that you'll have to grab your Radarr API key instead of Sonarr. Once that's done click Finish and you will be brought to your main screen where you will be greeted with a message saying that you need to restart. Click this and Bazarr should reload. Once that's all set, you should be good to go! Bazarr should now automatically downlaod subtitles for the content you add through Radarr and Sonarr that is not already found within the media files themselves.
-
-If you have any problems, check out the [wiki page](https://github.com/morpheus65535/bazarr/wiki/First-time-installation-configuration) for Bazarr and you should probably find your answer.
 
 ## Cronjobs
 
-### Auto shutdown
+### Update
 
-Create a logfile: `sudo touch /var/log/shutdown.log`
+Create a logfile: `sudo touch /var/log/homeflix.update.log`
 
-```bash
-0 * * * * /home/rubilmax/homeflix/auto_shutdown.sh >> /var/log/shutdown.log
+```txt
+0 */4 * * * /home/rubilmax/homeflix/scripts/update.sh >> /var/log/homeflix.update.log
+```
+
+### Shutdown
+
+Create a logfile: `sudo touch /var/log/homeflix.shutdown.log`
+
+```txt
+* * * * * /home/rubilmax/homeflix/scripts/shutdown.sh >> /var/log/homeflix.shutdown.log
 ```
